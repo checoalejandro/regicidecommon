@@ -1,0 +1,18 @@
+CREATE TABLE prefs (
+id TEXT NOT NULL PRIMARY KEY,
+string_value TEXT,
+default_value TEXT
+);
+
+insertPref:
+INSERT INTO prefs (id, string_value, default_value)
+VALUES (?, ?, ?);
+
+selectPref:
+SELECT *
+FROM prefs
+WHERE id = :id;
+
+deleteAll:
+DELETE
+FROM prefs;

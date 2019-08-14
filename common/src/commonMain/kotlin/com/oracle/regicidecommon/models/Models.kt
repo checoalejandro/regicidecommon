@@ -1,4 +1,4 @@
-package org.jetbrains.kotlinconf.models
+package com.oracle.regicidecommon.models
 
 import kotlinx.serialization.Serializable
 
@@ -10,4 +10,4 @@ data class DataSet(
         val type: String)
 
 @Serializable
-class EmptyList: MutableList<DataSet> by mutableListOf()
+class DataSetList: MutableList<DataSet> by mutableListOf()

@@ -1,24 +1,117 @@
+buildscript {
+    ext {
+        kodein_version = '6.2.0'
+        ktor_version = '1.1.4'
+        serialization_version = '0.11.0'
+        slf4j_version = '1.7.26'
+    }
+}
+
+apply plugin: 'com.android.library'
 apply plugin: 'kotlin-multiplatform'
 apply plugin: 'kotlinx-serialization'
+apply plugin: 'org.jetbrains.kotlin.multiplatform'
+apply plugin: 'com.squareup.sqldelight'
+
+group = 'com.oracle.regicidecommon'
+version = 1.0
+
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        minSdkVersion 21
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
 
 kotlin {
     targets {
-        fromPreset(presets.jvm, 'jvm')
+        fromPreset(presets.android, 'android')
 
-        // Change to `presets.iosArm64` to deploy the app to iPhone
-//        fromPreset(presets.iosX64, 'ios') {
-//            compilations.main.outputKinds('FRAMEWORK')
-//        }
+        def buildForDevice = project.findProperty("device")?.toBoolean() ?: false
+        def iosPreset = (buildForDevice) ? presets.iosArm64 : presets.iosX64
+        fromPreset(iosPreset, 'ios') {
+            binaries {
+                framework {
+                    // Disable bitcode embedding for the simulator build.
+                    if (!buildForDevice) {
+                        embedBitcode("disable")
+                    }
+                }
+            }
+        }
     }
+
     sourceSets {
+        androidMain {
+            dependencies {
+                // Kotlin
+                implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+                // Coroutines
+                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
+                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+
+                // Ktor
+                implementation "io.ktor:ktor-client-android:$ktor_version"
+                implementation "io.ktor:ktor-client-core-jvm:$ktor_version"
+                implementation "io.ktor:ktor-client-json-jvm:$ktor_version"
+                implementation "io.ktor:ktor-client-logging-jvm:$ktor_version"
+                implementation "org.slf4j:slf4j-android:$slf4j_version"
+
+                // Serialize
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serialization_version"
+
+                // SQLDelight
+                implementation "com.squareup.sqldelight:android-driver:$sqldelight_version"
+            }
+        }
+        iosMain {
+            dependencies {
+                // Coroutines
+                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-native:$coroutines_version"
+
+                // Ktor
+                implementation "io.ktor:ktor-client-ios:$ktor_version"
+                implementation "io.ktor:ktor-client-core-native:$ktor_version"
+                implementation "io.ktor:ktor-client-json-native:$ktor_version"
+                implementation "io.ktor:ktor-client-logging-native:$ktor_version"
+
+                // Serialize
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:$serialization_version"
+
+                // SQLDelight
+                implementation "com.squareup.sqldelight:ios-driver:$sqldelight_version"
+            }
+        }
         commonMain {
             dependencies {
-                implementation 'org.jetbrains.kotlin:kotlin-stdlib'
-                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:$coroutines_version"
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:0.11.1"
+                // Kotlin
+                implementation "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
 
+                // Coroutines
+                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:$coroutines_version"
+
+                // Kodein
+                implementation "org.kodein.di:kodein-di-core:$kodein_version"
+                implementation "org.kodein.di:kodein-di-erased:$kodein_version"
+
+                // Ktor
                 implementation "io.ktor:ktor-client-core:$ktor_version"
                 implementation "io.ktor:ktor-client-json:$ktor_version"
+                implementation "io.ktor:ktor-client-logging:$ktor_version"
+
+                // Serialize
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serialization_version"
+
+                // SQLDelight
+                implementation "com.squareup.sqldelight:runtime:$sqldelight_version"
             }
         }
         commonTest {
@@ -27,32 +120,43 @@ kotlin {
                 implementation "org.jetbrains.kotlin:kotlin-test-annotations-common"
             }
         }
-        jvmMain {
-            dependencies {
-                implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+    }
+}
 
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serialization_version"
+sqldelight {
+    KotlinDatabase {
+        packageName = "com.oracle.dv"
+        sourceFolders = ["sqldelight"]
+        schemaOutputDirectory = file("src/main/sqldelight/migrations")
+    }
+}
 
-                implementation "io.ktor:ktor-client-core-jvm:$ktor_version"
-                implementation "io.ktor:ktor-client-json-jvm:$ktor_version"
-            }
+task copyFramework {
+    def buildType = project.findProperty("kotlin.build.type") ?: "DEBUG"
+    dependsOn "link${buildType.toLowerCase().capitalize()}FrameworkIos"
+
+    doLast {
+        def srcFile = kotlin.targets.ios.binaries.getFramework(buildType).outputFile
+        def targetDir = getProperty("configuration.build.dir")
+        copy {
+            from srcFile.parent
+            into targetDir
+            include 'core.framework/**'
+            include 'core.framework.dSYM'
         }
-        jvmTest {
-            dependencies {
-                implementation 'org.jetbrains.kotlin:kotlin-test'
-                implementation 'org.jetbrains.kotlin:kotlin-test-junit'
-            }
-        }
-        iosMain {
-            dependencies {
-                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-native:$coroutines_version"
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:$serialization_version"
+    }
+}
 
-                implementation "io.ktor:ktor-client-ios:$ktor_version"
-                implementation "io.ktor:ktor-client-core-native:$ktor_version"
-                implementation "io.ktor:ktor-client-json-native:$ktor_version"
-            }
+task iosTest {
+    def device = project.findProperty("iosDevice")?.toString() ?: "iPhone 8"
+    dependsOn 'linkTestDebugExecutableIos'
+    group = JavaBasePlugin.VERIFICATION_GROUP
+    description = "Runs tests for target 'ios' on an iOS simulator"
+
+    doLast {
+        def binary = kotlin.targets.ios.binaries.getExecutable('test', 'DEBUG').outputFile
+        exec {
+            commandLine 'xcrun', 'simctl', 'spawn', device, binary.absolutePath
         }
     }
 }
