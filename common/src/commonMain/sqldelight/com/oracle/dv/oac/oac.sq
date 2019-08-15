@@ -1,0 +1,28 @@
+CREATE TABLE datasets (
+name TEXT NOT NULL PRIMARY KEY,
+namespace TEXT,
+description TEXT,
+type TEXT
+);
+
+insertDataset:
+INSERT INTO datasets (name, namespace, description, type)
+VALUES (?, ?, ?, ?);
+
+selectDataset:
+SELECT *
+FROM datasets
+WHERE name = :name;
+
+selectDatasets:
+SELECT *
+FROM datasets;
+
+deleteAll:
+DELETE
+FROM datasets;
+
+deleteDataset:
+DELETE
+FROM datasets
+WHERE name = :name;
