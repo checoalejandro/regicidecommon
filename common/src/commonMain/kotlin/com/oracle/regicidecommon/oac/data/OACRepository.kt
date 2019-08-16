@@ -2,10 +2,13 @@ package com.oracle.regicidecommon.oac.data
 
 import com.oracle.regicidecommon.OACApi
 import com.oracle.regicidecommon.models.DataSet
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.delay
+import kotlinx.serialization.UnstableDefault
 
+@UnstableDefault
+@ExperimentalCoroutinesApi
 class OACRepository(
     private val oacApi: OACApi,
     private val oacDao: OACDao
@@ -40,6 +43,19 @@ class OACRepository(
             )
             oacChannel.offer(oacDao.selectDatasets() ?: emptyList())
         })
+    }
+
+    suspend fun fetchCanonicalData(
+        namespace: String,
+        name: String
+    ): ReceiveChannel<List<List<String>>> {
+        val channel = ConflatedBroadcastChannel<List<List<String>>>()
+        oacApi.getDataSetCanonicalData(namespace, name, success = {
+            channel.offer(it)
+        }, failure = {
+            channel.offer(emptyList())
+        })
+        return channel.openSubscription()
     }
 
 }
