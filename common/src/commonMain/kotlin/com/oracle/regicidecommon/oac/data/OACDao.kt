@@ -13,9 +13,35 @@ class OACDao(database: OacDatabase) {
         }
     }
 
-    fun selectDataset(name: String) = db.selectDataset(name).executeAsOne().let { DataSet(it.name, it.namespace ?: "", it.description ?: "", it.type ?: "") }
+    fun selectDataset(name: String): DataSet? {
+        try {
+            db.selectDataset(name).executeAsOne().let {
+                return DataSet(
+                    it.name,
+                    it.namespace ?: "",
+                    it.description ?: "",
+                    it.type ?: ""
+                )
+            }
+        } catch (e: Exception) {
+            return null
+        }
+    }
 
-    fun selectDatasets() = db.selectDatasets().executeAsList().map { DataSet(it.name, it.namespace ?: "", it.description ?: "", it.type ?: "") }
+    fun selectDatasets(): List<DataSet>? {
+        return try {
+            db.selectDatasets().executeAsList().map {
+                DataSet(
+                    it.name,
+                    it.namespace ?: "",
+                    it.description ?: "",
+                    it.type ?: ""
+                )
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
 
     fun deleteDataset(name: String) = db.deleteDataset(name)
 

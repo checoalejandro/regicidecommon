@@ -1,5 +1,5 @@
 CREATE TABLE datasets (
-name TEXT NOT NULL PRIMARY KEY,
+name TEXT NOT NULL PRIMARY KEY ON CONFLICT REPLACE,
 namespace TEXT,
 description TEXT,
 type TEXT
