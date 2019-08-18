@@ -10,11 +10,9 @@ import com.oracle.regicidecommon.oac.data.OACRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
-import kotlinx.serialization.UnstableDefault
 import org.kodein.di.erased.instance
 
 @ExperimentalCoroutinesApi
-@UnstableDefault
 class DataSetDetailViewModel(val namespace: String, val name: String) :
     BaseViewModel<Coordinator, DataSetDetailState>(),
     DataSetDetailActions, Coordinator {

@@ -13,11 +13,9 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.http.takeFrom
-import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.list
 
-@UnstableDefault
 class OACApi(val endPoint: String, val userAuth: String) {
     private val textClient = HttpClient()
     private val client = HttpClient {

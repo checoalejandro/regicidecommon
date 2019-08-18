@@ -5,9 +5,7 @@ import com.oracle.regicidecommon.models.DataSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.serialization.UnstableDefault
 
-@UnstableDefault
 @ExperimentalCoroutinesApi
 class OACRepository(
     private val oacApi: OACApi,
