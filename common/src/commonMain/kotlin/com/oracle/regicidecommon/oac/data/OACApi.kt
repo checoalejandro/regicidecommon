@@ -1,24 +1,25 @@
-package com.oracle.regicidecommon
+package com.oracle.regicidecommon.oac.data
 
 import com.oracle.regicidecommon.models.DataSet
 import io.ktor.client.HttpClient
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.features.json.serializer.KotlinxSerializer
-import io.ktor.client.request.HttpRequestBuilder
-import io.ktor.client.request.accept
-import io.ktor.client.request.get
-import io.ktor.client.request.header
-import io.ktor.content.TextContent
-import io.ktor.http.ContentType
+import io.ktor.client.request.*
 import io.ktor.http.HttpHeaders
-import io.ktor.http.contentType
+import io.ktor.http.URLBuilder
 import io.ktor.http.takeFrom
+import io.ktor.util.pipeline.pipelineExecutorFor
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.list
 
 class OACApi(val endPoint: String, val userAuth: String) {
     private val textClient = HttpClient()
     private val client = HttpClient {
+        engine {
+            threadsCount = 4
+            pipelining = true
+        }
+        useDefaultTransformers = true
         install(JsonFeature) {
             serializer = KotlinxSerializer(Json.nonstrict).apply {
                 setMapper(DataSet::class, DataSet.serializer())

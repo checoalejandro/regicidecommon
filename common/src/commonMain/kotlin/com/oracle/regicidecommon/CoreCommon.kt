@@ -4,6 +4,7 @@ import com.oracle.dv.datasets.OacDatabase
 import com.oracle.dv.preferences.PreferencesDatabase
 import com.oracle.regicidecommon.base.Sleeper
 import com.oracle.regicidecommon.base.freeze
+import com.oracle.regicidecommon.oac.data.OACApi
 import com.oracle.regicidecommon.oac.data.OACRepository
 import com.oracle.regicidecommon.oac.data.OACDao
 import com.oracle.regicidecommon.prefs.PrefsDao
