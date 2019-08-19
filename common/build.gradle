@@ -133,12 +133,12 @@ task copyFramework {
 
     doLast {
         def srcFile = kotlin.targets.ios.binaries.getFramework(buildType).outputFile
-        def targetDir = getProperty("configuration.build.dir")
+        def targetDir = "/users/alexacosta/"
         copy {
             from srcFile.parent
             into targetDir
-            include 'core.framework/**'
-            include 'core.framework.dSYM'
+            include 'common.framework/**'
+            include 'common.framework.dSYM'
         }
     }
 }
