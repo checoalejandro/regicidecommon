@@ -16,3 +16,7 @@ WHERE id = :id;
 deleteAll:
 DELETE
 FROM prefs;
+
+selectAll:
+SELECT *
+FROM prefs;

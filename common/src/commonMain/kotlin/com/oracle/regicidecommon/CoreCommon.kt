@@ -4,6 +4,8 @@ import com.oracle.dv.datasets.OacDatabase
 import com.oracle.dv.preferences.PreferencesDatabase
 import com.oracle.regicidecommon.base.Sleeper
 import com.oracle.regicidecommon.base.freeze
+import com.oracle.regicidecommon.base.getPrefsDriver
+import com.oracle.regicidecommon.base.getSqlDriver
 import com.oracle.regicidecommon.oac.data.OACApi
 import com.oracle.regicidecommon.oac.data.OACRepository
 import com.oracle.regicidecommon.oac.data.OACDao
@@ -25,6 +27,7 @@ class CoreCommon(sleeper: Sleeper, oacDriver: SqlDriver, prefsDriver: SqlDriver)
         constant("entryUrl") with "http://slc11aso.us.oracle.com:9080/"
         constant("userAuth") with "YWRtaW46d2VsY29tZTE="
         bind() from singleton { sleeper }
+        bind() from singleton { oacDriver }
         bind() from singleton { OacDatabase(oacDriver) }
         bind() from singleton { PreferencesDatabase(prefsDriver) }
         bind() from singleton { OACDao(instance()) }
@@ -35,15 +38,19 @@ class CoreCommon(sleeper: Sleeper, oacDriver: SqlDriver, prefsDriver: SqlDriver)
     }
 }
 
+var version = "0.0.5"
+
 var isInitialized = false
     private set
 lateinit var coreCommon: CoreCommon
     private set
 
-fun initializeCoreCommon(sleeper: Sleeper, oacDriver: SqlDriver, prefsDriver: SqlDriver) {
+fun getCurrentVersion() = version
+
+fun initializeCoreCommon(sleeper: Sleeper, oac: SqlDriver? = null, prefs: SqlDriver? = null) {
     if (!isInitialized) {
         freeze(sleeper)
-        coreCommon = CoreCommon(sleeper, oacDriver, prefsDriver)
+        coreCommon = CoreCommon(sleeper, oac ?: getSqlDriver("oac.db"), prefs ?: getPrefsDriver("prefs.db"))
         isInitialized = true
     }
 }

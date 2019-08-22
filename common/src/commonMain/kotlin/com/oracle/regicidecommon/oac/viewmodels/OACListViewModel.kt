@@ -16,7 +16,6 @@ class OACListViewModel: BaseViewModel<OACCoordinator, DatasetListState>(), Datas
 
     init {
         debug(TAG, "Init")
-        dispatchBackgroundWork { generateBackgroundWork(sleeper) }
 
         launch {
             oacRepo.subscribeDatasets()
@@ -40,6 +39,11 @@ class OACListViewModel: BaseViewModel<OACCoordinator, DatasetListState>(), Datas
         coordinator?.value?.showDataset(namespace, name)
     }
 
+    override fun fetchDataSetListFromDb() {
+        debug(TAG, "Fetching dataSet list from db")
+        stateChannel.mutate { it.copy() }
+        launch { oacRepo.fetchDataSetsFromDb() }
+    }
 }
 
 data class DatasetListState(val datasetList: List<DataSet>): State
@@ -47,6 +51,7 @@ data class DatasetListState(val datasetList: List<DataSet>): State
 interface DatasetListActions: Actions {
     fun fetchDatasetList()
     fun onDatasetClicked(namespace: String, name: String)
+    fun fetchDataSetListFromDb()
 }
 
 interface OACCoordinator: Coordinator {

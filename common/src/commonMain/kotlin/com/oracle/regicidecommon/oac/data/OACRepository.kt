@@ -1,5 +1,7 @@
 package com.oracle.regicidecommon.oac.data
 
+import com.oracle.regicidecommon.base.debug
+import com.oracle.regicidecommon.base.error
 import com.oracle.regicidecommon.models.DataSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
@@ -11,6 +13,8 @@ class OACRepository(
     private val oacDao: OACDao
 ) {
 
+    private val TAG = "OacRepository"
+
     private val oacChannel = ConflatedBroadcastChannel<List<DataSet>>()
 
     fun subscribeDatasets() = oacChannel.openSubscription()
@@ -21,7 +25,7 @@ class OACRepository(
             oacDao.insertDataset(it)
             channel.offer(it)
         }, failure = {
-            com.oracle.regicidecommon.base.error(
+            error(
                 "OACRepository",
                 "Error fetching $name dataset from network"
             )
@@ -30,11 +34,17 @@ class OACRepository(
         return channel.openSubscription()
     }
 
+    suspend fun fetchDataSetsFromDb() {
+        oacChannel.offer(oacDao.selectDatasets() ?: emptyList())
+    }
+
     suspend fun fetchDatasets() {
         oacApi.getDatasets(success = {
+            debug(TAG, "Successfully fetched... storing in db")
+            it.forEach { dataSet -> oacDao.insertDataset(dataSet) }
             oacChannel.offer(it)
         }, failure = {
-            com.oracle.regicidecommon.base.error(
+            error(
                 "OACRepository",
                 "Error fetching dataset list from network"
             )

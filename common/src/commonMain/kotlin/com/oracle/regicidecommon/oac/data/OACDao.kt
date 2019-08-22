@@ -5,6 +5,8 @@ import com.oracle.regicidecommon.models.DataSet
 
 class OACDao(database: OacDatabase) {
 
+    private val TAG = "OacDao"
+
     private val db = database.oacQueries
 
     fun insertDataset(dataSet: DataSet) {
@@ -24,6 +26,7 @@ class OACDao(database: OacDatabase) {
                 )
             }
         } catch (e: Exception) {
+            com.oracle.regicidecommon.base.error(TAG, "Couldn't get dataset")
             return null
         }
     }
@@ -39,6 +42,7 @@ class OACDao(database: OacDatabase) {
                 )
             }
         } catch (e: Exception) {
+            com.oracle.regicidecommon.base.error("OacDao", "Couldn't get list")
             null
         }
     }

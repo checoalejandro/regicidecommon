@@ -40,12 +40,6 @@ kotlin {
     }
 
     sourceSets {
-        configure([androidMain]) {
-            dependsOn commonMain
-        }
-        configure([iosX64Main, iosArm64Main]) {
-            dependsOn iosMain
-        }
         androidMain {
             dependencies {
                 // Kotlin
@@ -125,12 +119,12 @@ sqldelight {
     PreferencesDatabase {
         packageName = "com.oracle.dv.preferences"
         sourceFolders = ["prefs"]
-        schemaOutputDirectory = file("src/main/sqldelight/migrations")
+        schemaOutputDirectory = file("src/main/database/migrations")
     }
     OacDatabase {
         packageName = "com.oracle.dv.datasets"
-        sourceFolders = ["sqldelight"]
-        schemaOutputDirectory = file("src/main/sqldelight/migrations")
+        sourceFolders = ["oac"]
+        schemaOutputDirectory = file("src/main/database/migrations")
     }
 }
 
@@ -140,7 +134,7 @@ task copyFramework {
 
     doLast {
         def srcFile = kotlin.targets.ios.binaries.getFramework(buildType).outputFile
-        def targetDir = "/users/alexacosta/"
+        def targetDir = "/Users/alexacosta/Documents/Dev/iosdv/Oracle DV"
         copy {
             from srcFile.parent
             into targetDir

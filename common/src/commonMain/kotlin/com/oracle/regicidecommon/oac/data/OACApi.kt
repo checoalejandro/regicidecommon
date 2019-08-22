@@ -39,7 +39,7 @@ class OACApi(val endPoint: String, val userAuth: String) {
             }
             Json.nonstrict.parse(DataSet.serializer(), json)
                 .also(success)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             failure(e)
         }
     }
@@ -51,8 +51,8 @@ class OACApi(val endPoint: String, val userAuth: String) {
             }
             Json.nonstrict.parse(DataSet.serializer().list, json)
                 .also(success)
-        } catch (e: Exception) {
-            failure(e)
+        } catch (t: Throwable) {
+            failure(t)
         }
     }
 
@@ -74,7 +74,7 @@ class OACApi(val endPoint: String, val userAuth: String) {
                 .map { it.split(",") }
                 .toList()
                 .also(success)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             failure(e)
         }
     }
