@@ -63,8 +63,8 @@ class ExampleUnitTest {
                 `when`(oacApi.getDatasets()).thenReturn(listOf(DataSet("alex", "alex", "alex", "alex")))
             }
         }
-        Whitebox.setInternalState(oacRepository, OACApi::class.java, oacApi)
         Whitebox.setInternalState(viewModel, OACRepository::class.java, oacRepository)
+        Whitebox.setInternalState(oacRepository, OACApi::class.java, oacApi)
         runBlocking {
             launch {
                 val listener = object : StateChangeListener<DatasetListState> {
