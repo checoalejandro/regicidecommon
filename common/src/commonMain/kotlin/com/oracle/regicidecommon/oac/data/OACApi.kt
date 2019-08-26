@@ -44,6 +44,18 @@ class OACApi(val endPoint: String, val userAuth: String) {
         }
     }
 
+    suspend fun getDatasets(): List<DataSet>? {
+        return try {
+            val json = client.get<String> {
+                apiUrl("api/datasetsvc/public/api/v4/datasets", userAuth)
+            }
+            Json.nonstrict.parse(DataSet.serializer().list, json)
+        } catch (t: Throwable) {
+            com.oracle.regicidecommon.base.error("OACApi", t.message ?: "Error fetching datasets")
+            null
+        }
+    }
+
     suspend fun getDatasets(success: (List<DataSet>) -> Unit, failure: (Throwable?) -> Unit) {
         try {
             val json = client.get<String> {

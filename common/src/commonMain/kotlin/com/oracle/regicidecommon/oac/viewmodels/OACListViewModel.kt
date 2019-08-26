@@ -12,7 +12,6 @@ import org.kodein.di.erased.instance
 class OACListViewModel: BaseViewModel<OACCoordinator, DatasetListState>(), DatasetListActions {
 
     private val oacRepo: OACRepository by coreCommon.kodein.instance()
-    private val sleeper: Sleeper by coreCommon.kodein.instance()
 
     init {
         debug(TAG, "Init")
@@ -32,7 +31,7 @@ class OACListViewModel: BaseViewModel<OACCoordinator, DatasetListState>(), Datas
     override fun fetchDatasetList() {
         debug(TAG, "Fetching dataset list")
         stateChannel.mutate { it.copy() }
-        launch { oacRepo.fetchDatasets() }
+        launch { oacRepo.fetchDatasetsSync() }
     }
 
     override fun onDatasetClicked(namespace: String, name: String) {

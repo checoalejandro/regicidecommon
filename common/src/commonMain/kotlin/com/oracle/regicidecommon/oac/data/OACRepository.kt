@@ -38,6 +38,21 @@ class OACRepository(
         oacChannel.offer(oacDao.selectDatasets() ?: emptyList())
     }
 
+    suspend fun fetchDatasetsSync() {
+        val list = oacApi.getDatasets()
+        if (list == null) {
+            error(
+                "OACRepository",
+                "Error fetching dataset list from network"
+            )
+            oacChannel.offer(oacDao.selectDatasets() ?: emptyList())
+        } else {
+            debug(TAG, "Successfully fetched... storing in db")
+            list.forEach { dataSet -> oacDao.insertDataset(dataSet) }
+            oacChannel.offer(list)
+        }
+    }
+
     suspend fun fetchDatasets() {
         oacApi.getDatasets(success = {
             debug(TAG, "Successfully fetched... storing in db")
