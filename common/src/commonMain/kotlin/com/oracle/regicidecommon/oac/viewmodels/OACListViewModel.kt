@@ -10,7 +10,7 @@ import org.kodein.di.erased.instance
 
 class OACListViewModel: BaseViewModel<OACCoordinator, DatasetListState>(), DatasetListActions {
 
-    private val oacRepository: OACRepository by coreCommon.kodein.instance()
+    val oacRepository: OACRepository by coreCommon.kodein.instance()
 
     init {
         debug(TAG, "Init")
@@ -30,7 +30,7 @@ class OACListViewModel: BaseViewModel<OACCoordinator, DatasetListState>(), Datas
     override fun fetchDatasetList() {
         debug(TAG, "Fetching dataset list")
         stateChannel.mutate { it.copy() }
-        launch { oacRepository.fetchDatasetsSync() }
+        launch { oacRepository.fetchDatasets() }
     }
 
     override fun onDatasetClicked(namespace: String, name: String) {

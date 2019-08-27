@@ -21,16 +21,14 @@ class OACRepository(
 
     suspend fun fetchDataset(namespace: String, name: String): ReceiveChannel<DataSet> {
         val channel = ConflatedBroadcastChannel<DataSet>()
-        oacApi.getDataset(namespace, name, success = {
-            oacDao.insertDataset(it)
-            channel.offer(it)
-        }, failure = {
-            error(
-                "OACRepository",
-                "Error fetching $name dataset from network"
-            )
+        val dataset = oacApi.getDataset(namespace, name)
+        if (dataset == null) {
+            error(TAG, "Error fetching dataset")
             oacDao.selectDataset(name)?.let { channel.offer(it) }
-        })
+        } else {
+            oacDao.insertDataset(dataset)
+            channel.offer(dataset)
+        }
         return channel.openSubscription()
     }
 
@@ -38,45 +36,34 @@ class OACRepository(
         oacChannel.offer(oacDao.selectDatasets() ?: emptyList())
     }
 
-    suspend fun fetchDatasetsSync() {
+    suspend fun fetchDatasets() {
         val list = oacApi.getDatasets()
         if (list == null) {
             error(
-                "OACRepository",
+                TAG,
                 "Error fetching dataset list from network"
             )
             oacChannel.offer(oacDao.selectDatasets() ?: emptyList())
         } else {
-            debug(TAG, "Successfully fetched... storing in db")
-            list.forEach { dataSet -> oacDao.insertDataset(dataSet) }
-            oacChannel.offer(list)
+            if (list.isEmpty()) {
+                debug(TAG, "Successfully fetched empty list... clearing list")
+                oacDao.deleteAll()
+                oacChannel.offer(list)
+            } else {
+                debug(TAG, "Successfully fetched... storing in db")
+                list.forEach { dataSet -> oacDao.insertDataset(dataSet) }
+                oacChannel.offer(list)
+            }
         }
-    }
-
-    suspend fun fetchDatasets() {
-        oacApi.getDatasets(success = {
-            debug(TAG, "Successfully fetched... storing in db")
-            it.forEach { dataSet -> oacDao.insertDataset(dataSet) }
-            oacChannel.offer(it)
-        }, failure = {
-            error(
-                "OACRepository",
-                "Error fetching dataset list from network"
-            )
-            oacChannel.offer(oacDao.selectDatasets() ?: emptyList())
-        })
     }
 
     suspend fun fetchCanonicalData(
         namespace: String,
         name: String
-    ): ReceiveChannel<List<List<String>>> {
-        val channel = ConflatedBroadcastChannel<List<List<String>>>()
-        oacApi.getDataSetCanonicalData(namespace, name, success = {
-            channel.offer(it)
-        }, failure = {
-            channel.offer(emptyList())
-        })
+    ): ReceiveChannel<List<List<String>>?> {
+        val channel = ConflatedBroadcastChannel<List<List<String>>?>()
+        val canonicalData = oacApi.getDataSetCanonicalData(namespace, name)
+        channel.offer(canonicalData)
         return channel.openSubscription()
     }
 

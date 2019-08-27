@@ -13,6 +13,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.list
 
 class OACApi(val endPoint: String, val userAuth: String) {
+    private val TAG = "OACApi"
     private val textClient = HttpClient()
     private val client = HttpClient {
         engine {
@@ -29,18 +30,16 @@ class OACApi(val endPoint: String, val userAuth: String) {
 
     suspend fun getDataset(
         namespace: String,
-        name: String,
-        success: (DataSet) -> Unit,
-        failure: (Throwable?) -> Unit
-    ) {
-        try {
+        name: String
+    ): DataSet? {
+        return try {
             val json = client.get<String> {
                 apiUrl("api/datasetsvc/public/api/v4/datasets/'$namespace'.'$name'", userAuth)
             }
             Json.nonstrict.parse(DataSet.serializer(), json)
-                .also(success)
         } catch (e: Throwable) {
-            failure(e)
+            com.oracle.regicidecommon.base.error(TAG, "Error getting dataset ${e.message}")
+            null
         }
     }
 
@@ -56,25 +55,11 @@ class OACApi(val endPoint: String, val userAuth: String) {
         }
     }
 
-    suspend fun getDatasets(success: (List<DataSet>) -> Unit, failure: (Throwable?) -> Unit) {
-        try {
-            val json = client.get<String> {
-                apiUrl("api/datasetsvc/public/api/v4/datasets", userAuth)
-            }
-            Json.nonstrict.parse(DataSet.serializer().list, json)
-                .also(success)
-        } catch (t: Throwable) {
-            failure(t)
-        }
-    }
-
     suspend fun getDataSetCanonicalData(
         namespace: String,
-        name: String,
-        success: (List<List<String>>) -> Unit,
-        failure: (Throwable?) -> Unit
-    ) {
-        try {
+        name: String
+    ): List<List<String>>? {
+        return try {
             val path = "api/datasetsvc/public/api/v4/datasets/'$namespace'.'$name'/canonical-data"
             val canonicalData = textClient.get<String> {
                 apiUrl(
@@ -85,9 +70,9 @@ class OACApi(val endPoint: String, val userAuth: String) {
             canonicalData.split("\n")
                 .map { it.split(",") }
                 .toList()
-                .also(success)
         } catch (e: Throwable) {
-            failure(e)
+            com.oracle.regicidecommon.base.error(TAG, "Error getting canonical data ${e.message}")
+            null
         }
     }
 

@@ -51,6 +51,8 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.powermock:powermock-core:2.0.2'
     testImplementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    testImplementation "org.kodein.di:kodein-di-core:6.3.3"
+    testImplementation "org.kodein.di:kodein-di-erased:6.3.3"
 
     androidTestImplementation 'androidx.test:core:1.2.0'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'

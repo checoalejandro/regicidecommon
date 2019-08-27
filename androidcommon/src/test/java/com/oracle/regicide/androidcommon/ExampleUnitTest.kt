@@ -6,25 +6,34 @@ import com.oracle.dv.datasets.OacDatabase
 import com.oracle.dv.preferences.PreferencesDatabase
 import com.oracle.regicidecommon.base.Sleeper
 import com.oracle.regicidecommon.base.StateChangeListener
+import com.oracle.regicidecommon.base.debug
+import com.oracle.regicidecommon.coreCommon
 import com.oracle.regicidecommon.initializeCoreCommon
 import com.oracle.regicidecommon.models.DataSet
 import com.oracle.regicidecommon.oac.data.OACApi
+import com.oracle.regicidecommon.oac.data.OACDao
 import com.oracle.regicidecommon.oac.data.OACRepository
 import com.oracle.regicidecommon.oac.viewmodels.DatasetListState
 import com.oracle.regicidecommon.oac.viewmodels.OACListViewModel
 import com.squareup.sqldelight.android.AndroidSqliteDriver
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.*
 import org.mockito.*
-import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.kodein.di.Kodein
+import org.kodein.di.erased.bind
+import org.kodein.di.erased.instance
+import org.kodein.di.erased.singleton
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import org.powermock.reflect.Whitebox
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
+import org.robolectric.shadows.ShadowLog
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -34,7 +43,9 @@ import org.robolectric.RuntimeEnvironment
 @RunWith(RobolectricTestRunner::class)
 class ExampleUnitTest {
 
+    lateinit var kodein: Kodein
     lateinit var oacApi: OACApi
+    lateinit var oacDao: OACDao
     lateinit var oacRepository: OACRepository
 
     lateinit var context: Context
@@ -42,6 +53,7 @@ class ExampleUnitTest {
 
     @Before
     fun setup() {
+        ShadowLog.stream = System.out
         context = RuntimeEnvironment.systemContext
         initializeCoreCommon(
             object : Sleeper {
@@ -51,32 +63,35 @@ class ExampleUnitTest {
             }, AndroidSqliteDriver(OacDatabase.Schema, context, "oac.db"),
             AndroidSqliteDriver(PreferencesDatabase.Schema, context, "prefs.db")
         )
+        oacDao = mock(OACDao::class.java)
         oacApi = mock(OACApi::class.java)
-        oacRepository = mock(OACRepository::class.java)
+
+        kodein = Kodein {
+            extend(coreCommon.kodein, true)
+            bind(overrides = true) from singleton { oacDao }
+            bind(overrides = true) from singleton { oacApi }
+            bind(overrides = true) from singleton { OACRepository(oacApi, oacDao) }
+        }
+        Whitebox.setInternalState(coreCommon, Kodein::class.java, kodein)
+
         viewModel = OACListViewModel()
     }
 
     @Test
-    fun sample() {
+    fun sampleRequest() {
         runBlocking {
             launch {
                 `when`(oacApi.getDatasets()).thenReturn(listOf(DataSet("alex", "alex", "alex", "alex")))
-            }
-        }
-        Whitebox.setInternalState(viewModel, OACRepository::class.java, oacRepository)
-        Whitebox.setInternalState(oacRepository, OACApi::class.java, oacApi)
-        runBlocking {
-            launch {
-                val listener = object : StateChangeListener<DatasetListState> {
+                viewModel.setStateChangeListener(object : StateChangeListener<DatasetListState> {
                     override fun onStateChange(state: DatasetListState) {
-                        println(state.datasetList)
-                        assertNotNull(state.datasetList)
+                        if (state.datasetList.isEmpty()) return
+                        assertNotNull(state)
+                        assertEquals(1, state.datasetList.count())
                     }
-
-                }
+                })
                 viewModel.fetchDatasetList()
-                viewModel.setStateChangeListener(listener)
             }
         }
+
     }
 }
