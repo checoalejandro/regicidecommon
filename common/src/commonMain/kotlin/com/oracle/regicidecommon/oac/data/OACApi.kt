@@ -1,5 +1,6 @@
 package com.oracle.regicidecommon.oac.data
 
+import com.oracle.regicidecommon.base.encodeString
 import com.oracle.regicidecommon.models.DataSet
 import io.ktor.client.HttpClient
 import io.ktor.client.features.json.JsonFeature
@@ -34,7 +35,7 @@ class OACApi(val endPoint: String, val userAuth: String) {
     ): DataSet? {
         return try {
             val json = client.get<String> {
-                apiUrl("api/datasetsvc/public/api/v4/datasets/'$namespace'.'$name'", userAuth)
+                apiUrl(encodeString("api/datasetsvc/public/api/v4/datasets/'$namespace'.'$name'"), userAuth)
             }
             Json.nonstrict.parse(DataSet.serializer(), json)
         } catch (e: Throwable) {
@@ -60,7 +61,7 @@ class OACApi(val endPoint: String, val userAuth: String) {
         name: String
     ): List<List<String>>? {
         return try {
-            val path = "api/datasetsvc/public/api/v4/datasets/'$namespace'.'$name'/canonical-data"
+            val path = encodeString("api/datasetsvc/public/api/v4/datasets/'$namespace'.'$name'/canonical-data")
             val canonicalData = textClient.get<String> {
                 apiUrl(
                     path,
