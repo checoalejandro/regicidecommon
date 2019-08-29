@@ -1,3 +1,5 @@
 package com.oracle.regicidecommon.base
 
-actual fun encodeString(string: String) = string
+import io.ktor.http.encodeURLPath
+
+actual fun encodeString(string: String) = string.encodeURLPath()
