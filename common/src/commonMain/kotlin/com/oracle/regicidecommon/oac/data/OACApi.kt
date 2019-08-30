@@ -84,4 +84,10 @@ class OACApi(val endPoint: String, val userAuth: String) {
             encodedPath = path
         }
     }
+
+    private suspend fun requestString(path: String): String {
+        return client.get<String> {
+            apiUrl("api/datasetsvc/public/api/v4/datasets", userAuth)
+        }
+    }
 }

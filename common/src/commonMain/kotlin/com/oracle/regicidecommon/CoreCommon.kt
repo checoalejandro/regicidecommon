@@ -17,8 +17,10 @@ import org.kodein.di.erased.bind
 import org.kodein.di.erased.instance
 import org.kodein.di.erased.singleton
 import org.kodein.di.erased.with
+import kotlin.reflect.KClass
 
 class CoreCommon(sleeper: Sleeper, oacDriver: SqlDriver, prefsDriver: SqlDriver) {
+
     init {
 
     }
@@ -38,7 +40,7 @@ class CoreCommon(sleeper: Sleeper, oacDriver: SqlDriver, prefsDriver: SqlDriver)
     }
 }
 
-var version = "0.0.5"
+private var version = "0.0.5"
 
 var isInitialized = false
     private set

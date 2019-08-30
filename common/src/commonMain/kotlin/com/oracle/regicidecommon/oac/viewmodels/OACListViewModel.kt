@@ -29,7 +29,6 @@ class OACListViewModel: BaseViewModel<OACCoordinator, DatasetListState>(), Datas
 
     override fun fetchDatasetList() {
         debug(TAG, "Fetching dataset list")
-        stateChannel.mutate { it.copy() }
         launch { oacRepository.fetchDatasets() }
     }
 
@@ -39,7 +38,6 @@ class OACListViewModel: BaseViewModel<OACCoordinator, DatasetListState>(), Datas
 
     override fun fetchDataSetListFromDb() {
         debug(TAG, "Fetching dataSet list from db")
-        stateChannel.mutate { it.copy() }
         launch { oacRepository.fetchDataSetsFromDb() }
     }
 }
