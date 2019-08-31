@@ -14,6 +14,7 @@ import com.oracle.regicidecommon.oac.data.OACDao
 import com.oracle.regicidecommon.prefs.PrefsDao
 import com.oracle.regicidecommon.prefs.PrefsManager
 import com.squareup.sqldelight.db.SqlDriver
+import io.ktor.client.features.cookies.AcceptAllCookiesStorage
 import io.ktor.client.features.cookies.ConstantCookiesStorage
 import org.kodein.di.Kodein
 import org.kodein.di.erased.bind
@@ -35,6 +36,7 @@ class CoreCommon(val sleeper: Sleeper, val oacDriver: SqlDriver, val prefsDriver
         constant("userAuth") with userAuth
 
         bind() from singleton { sleeper }
+        bind() from singleton { AcceptAllCookiesStorage() }
 
         // Databases
         bind() from singleton { oacDriver }
@@ -51,7 +53,6 @@ class CoreCommon(val sleeper: Sleeper, val oacDriver: SqlDriver, val prefsDriver
 
         // Other
         bind() from singleton { PrefsManager(instance()) }
-        bind() from singleton { ConstantCookiesStorage() }
 
         // Repositories
         bind() from singleton { OACRepository(instance(), instance()) }

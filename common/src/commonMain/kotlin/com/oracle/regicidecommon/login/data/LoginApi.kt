@@ -12,7 +12,6 @@ import com.oracle.regicidecommon.utils.RequestPaths.OAC_POST_MULTISEARCH
 import com.oracle.regicidecommon.utils.toFormDataContent
 import io.ktor.client.HttpClient
 import io.ktor.client.features.cookies.AcceptAllCookiesStorage
-import io.ktor.client.features.cookies.ConstantCookiesStorage
 import io.ktor.client.features.cookies.HttpCookies
 import io.ktor.client.features.cookies.cookies
 import io.ktor.client.features.json.JsonFeature
@@ -24,14 +23,14 @@ import org.kodein.di.erased.instance
 
 class LoginApi(val endPoint: String) {
 
-    private val storage: ConstantCookiesStorage by coreCommon.kodein.instance()
+    private val cookieStorage: AcceptAllCookiesStorage by coreCommon.kodein.instance()
 
     private val TAG = "LoginApi"
 
     private val client = HttpClient {
         install(JsonFeature)
         install(HttpCookies) {
-            storage = AcceptAllCookiesStorage()
+            storage = cookieStorage
         }
     }
 
@@ -78,4 +77,5 @@ class LoginApi(val endPoint: String) {
     }
 }
 
-val searchContent = "{\"searchQueries\":[{\"types\":[\"project\",\"folder\",\"dashboardpage\",\"dashboard\",\"report\",\"xdo\",\"dataset\",\"subjectarea\",\"replication\",\"connection\",\"dataflow\",\"sequence\",\"model\"],\"searchAttributes\":[],\"searchText\":\"*\",\"searchInFolder\":\"RECENT\",\"sortBy\":\"LAST_MODIFIED_DESCENDING\",\"pageSize\":16},{\"types\":[\"project\",\"folder\",\"dashboardpage\",\"dashboard\",\"report\",\"xdo\",\"dataset\",\"subjectarea\",\"replication\",\"connection\",\"dataflow\",\"sequence\",\"model\"],\"searchAttributes\":[],\"searchText\":\"*\",\"searchInFolder\":\"FAVORITES\",\"sortBy\":\"LAST_MODIFIED_DESCENDING\",\"pageSize\":8},{\"types\":[\"project\"],\"searchAttributes\":[],\"searchText\":\"*\",\"sortBy\":\"LAST_MODIFIED_DESCENDING\",\"pageSize\":8},{\"types\":[\"report\",\"dashboardpage\",\"xdo\"],\"searchAttributes\":[],\"searchText\":\"*\",\"sortBy\":\"LAST_MODIFIED_DESCENDING\",\"pageSize\":8},{\"types\":[\"dataset\",\"subjectarea\"],\"searchAttributes\":[],\"searchText\":\"*\",\"sortBy\":\"LAST_MODIFIED_DESCENDING\",\"pageSize\":24},{\"types\":[\"dataflow\",\"sequence\"],\"searchAttributes\":[\"replication=false\"],\"searchText\":\"*\",\"sortBy\":\"LAST_MODIFIED_DESCENDING\",\"pageSize\":24},{\"types\":[\"model\"],\"searchAttributes\":[],\"searchText\":\"*\",\"sortBy\":\"LAST_MODIFIED_DESCENDING\",\"pageSize\":24}]}"
+val searchContent =
+    "{\"searchQueries\":[{\"types\":[\"project\",\"folder\",\"dashboardpage\",\"dashboard\",\"report\",\"xdo\",\"dataset\",\"subjectarea\",\"replication\",\"connection\",\"dataflow\",\"sequence\",\"model\"],\"searchAttributes\":[],\"searchText\":\"*\",\"searchInFolder\":\"RECENT\",\"sortBy\":\"LAST_MODIFIED_DESCENDING\",\"pageSize\":16},{\"types\":[\"project\",\"folder\",\"dashboardpage\",\"dashboard\",\"report\",\"xdo\",\"dataset\",\"subjectarea\",\"replication\",\"connection\",\"dataflow\",\"sequence\",\"model\"],\"searchAttributes\":[],\"searchText\":\"*\",\"searchInFolder\":\"FAVORITES\",\"sortBy\":\"LAST_MODIFIED_DESCENDING\",\"pageSize\":8},{\"types\":[\"project\"],\"searchAttributes\":[],\"searchText\":\"*\",\"sortBy\":\"LAST_MODIFIED_DESCENDING\",\"pageSize\":8},{\"types\":[\"report\",\"dashboardpage\",\"xdo\"],\"searchAttributes\":[],\"searchText\":\"*\",\"sortBy\":\"LAST_MODIFIED_DESCENDING\",\"pageSize\":8},{\"types\":[\"dataset\",\"subjectarea\"],\"searchAttributes\":[],\"searchText\":\"*\",\"sortBy\":\"LAST_MODIFIED_DESCENDING\",\"pageSize\":24},{\"types\":[\"dataflow\",\"sequence\"],\"searchAttributes\":[\"replication=false\"],\"searchText\":\"*\",\"sortBy\":\"LAST_MODIFIED_DESCENDING\",\"pageSize\":24},{\"types\":[\"model\"],\"searchAttributes\":[],\"searchText\":\"*\",\"sortBy\":\"LAST_MODIFIED_DESCENDING\",\"pageSize\":24}]}"

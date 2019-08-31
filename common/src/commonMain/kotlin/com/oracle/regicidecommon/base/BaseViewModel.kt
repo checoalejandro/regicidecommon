@@ -4,8 +4,9 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.channels.consumeEach
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
-abstract class BaseViewModel<CD: Coordinator, ST: State>: CoroutineScope, Actions {
+abstract class BaseViewModel<CD: Coordinator, ST: State>: Actions {
     /**
      * The initial empty [State] of the screen.
      */
@@ -27,8 +28,22 @@ abstract class BaseViewModel<CD: Coordinator, ST: State>: CoroutineScope, Action
     protected var coordinator: WeakRef<CD>? = null
 
     private val job = Job()
-    override val coroutineContext: CoroutineContext
+    private val coroutineContext: CoroutineContext
         get() = MainDispatcher + job
+
+    private val heavyContext: CoroutineContext
+        get() = heavyDispatcher + job
+
+    private val parsingContext: CoroutineContext
+        get() = parsingDispatcher + job
+
+    private val dbContext: CoroutineContext
+        get() = dbDispatcher + job
+
+    private val defaultScope = CoroutineScope(coroutineContext)
+    private val heavyScope = CoroutineScope(coroutineContext)
+    private val parsingScope = CoroutineScope(parsingContext)
+    private val dbScope = CoroutineScope(dbContext)
 
     init {
         launch {
@@ -98,6 +113,14 @@ abstract class BaseViewModel<CD: Coordinator, ST: State>: CoroutineScope, Action
         stateChannel.offer(mutation.invoke(value))
     }
 
+    fun launch(block: suspend CoroutineScope.() -> Unit) = defaultScope.launch(MainDispatcher, CoroutineStart.DEFAULT, block)
+
+    fun heavyLaunch(block: suspend CoroutineScope.() -> Unit) = heavyScope.heavyLaunch(CoroutineStart.DEFAULT, block)
+
+    fun parserLaunch(block: suspend CoroutineScope.() -> Unit) = parsingScope.parsingLaunch(CoroutineStart.DEFAULT, block)
+
+    fun dbLaunch(block: suspend CoroutineScope.() -> Unit) = dbScope.dbLaunch(CoroutineStart.DEFAULT, block)
+
     companion object {
         val TAG = BaseViewModel::class.simpleName
     }
@@ -125,4 +148,25 @@ interface State
  */
 interface StateChangeListener<ST : State> {
     fun onStateChange(state: ST)
+}
+
+fun CoroutineScope.heavyLaunch(
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    block: suspend CoroutineScope.() -> Unit
+): Job {
+    return launch(heavyDispatcher, start, block)
+}
+
+fun CoroutineScope.parsingLaunch(
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    block: suspend CoroutineScope.() -> Unit
+): Job {
+    return launch(heavyDispatcher, start, block)
+}
+
+fun CoroutineScope.dbLaunch(
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    block: suspend CoroutineScope.() -> Unit
+): Job {
+    return launch(heavyDispatcher, start, block)
 }

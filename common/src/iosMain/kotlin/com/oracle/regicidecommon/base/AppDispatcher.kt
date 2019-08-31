@@ -12,6 +12,9 @@ import kotlin.coroutines.CoroutineContext
 //)
 
 internal actual val MainDispatcher: CoroutineDispatcher = NsQueueDispatcher(dispatch_get_main_queue())
+internal actual val heavyDispatcher: CoroutineDispatcher = NsQueueDispatcher(dispatch_get_main_queue())
+internal actual val parsingDispatcher: CoroutineDispatcher = NsQueueDispatcher(dispatch_get_main_queue())
+internal actual val dbDispatcher: CoroutineDispatcher = NsQueueDispatcher(dispatch_get_main_queue())
 
 internal class NsQueueDispatcher(private val dispatchQueue: dispatch_queue_t) : CoroutineDispatcher() {
     override fun dispatch(context: CoroutineContext, block: Runnable) {
