@@ -87,6 +87,7 @@ class OacTest {
                     override fun onStateChange(state: DatasetListState) {
                         if (state.datasetList.isEmpty()) return
                         assertEquals(1, state.datasetList.count())
+                        assertEquals("customName", state.datasetList.first().name)
                     }
                 })
                 viewModel.fetchDatasetList()
@@ -168,6 +169,38 @@ class OacTest {
                     .thenReturn(listOf(DataSet("NewValue", "NewValue", "customName", "customName")))
                     .thenReturn(mutableListOf(DataSet("NewValue", "NewValue", "NewValue", "NewValue")))
                     .thenReturn(null)
+                viewModel.setStateChangeListener(firstListener)
+                viewModel.fetchDatasetList()
+            }
+        }
+    }
+
+    @Test
+    fun `clear items from db`() {
+        val secondListener = object : StateChangeListener<DatasetListState> {
+            override fun onStateChange(state: DatasetListState) {
+                assertEquals(0, state.datasetList.count())
+            }
+        }
+        val firstListener = object : StateChangeListener<DatasetListState> {
+            override fun onStateChange(state: DatasetListState) {
+                if (state.datasetList.isEmpty()) return
+                assertNotNull(state)
+                assertEquals(1, state.datasetList.count())
+                viewModel.setStateChangeListener(secondListener)
+                runBlocking {
+                    launch {
+                        viewModel.fetchDatasetList()
+                    }
+                }
+            }
+        }
+
+        runBlocking {
+            launch {
+                `when`(oacApi.getDatasets())
+                    .thenReturn(listOf(DataSet("NewValue", "NewValue", "customName", "customName")))
+                    .thenReturn(emptyList())
                 viewModel.setStateChangeListener(firstListener)
                 viewModel.fetchDatasetList()
             }

@@ -12,6 +12,8 @@ abstract class BaseViewModel<CD: Coordinator, ST: State>: Actions {
      */
     abstract fun getInitialState(): ST
 
+    open fun returnInitialState() = true
+
     /**
      * A [ConflatedBroadcastChannel] used for preserving and offering the latest screen [State] to the [stateChangeListener].
      */
@@ -26,6 +28,8 @@ abstract class BaseViewModel<CD: Coordinator, ST: State>: Actions {
      * A [WeakRef] value pointing to the [Coordinator] being used to handle navigation on the current [StateChangeListener].
      */
     protected var coordinator: WeakRef<CD>? = null
+
+    private var isInitializing = true
 
     private val job = Job()
     private val coroutineContext: CoroutineContext
@@ -51,6 +55,10 @@ abstract class BaseViewModel<CD: Coordinator, ST: State>: Actions {
             stateChannel.openSubscription().consumeEach {
                 // New state has been received, notify the view of changes.
                 debug(TAG, "Updated state $it")
+                if (!returnInitialState() && isInitializing) {
+                    isInitializing = false
+                    return@consumeEach
+                }
                 stateChangeListener?.value?.onStateChange(it)
             }
         }

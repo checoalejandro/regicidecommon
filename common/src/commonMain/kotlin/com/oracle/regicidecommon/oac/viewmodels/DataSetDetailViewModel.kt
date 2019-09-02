@@ -39,6 +39,10 @@ class DataSetDetailViewModel(val namespace: String, val name: String) :
         }
     }
 
+    override fun returnInitialState(): Boolean {
+        return false
+    }
+
 }
 
 data class DataSetDetailState(
