@@ -29,6 +29,10 @@ android {
         }
     }
 
+    dataBinding {
+         enabled = true
+    }
+
     useLibrary 'android.test.runner'
 
     useLibrary 'android.test.base'
@@ -37,7 +41,7 @@ android {
 }
 
 dependencies {
-    implementation project(':common')
+    api project(':common')
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "com.squareup.sqldelight:android-driver:1.1.4"
