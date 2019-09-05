@@ -25,7 +25,7 @@ class OACDao(database: OacDatabase) {
                     it.type ?: ""
                 )
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             com.oracle.regicidecommon.base.error(TAG, "Couldn't get dataset")
             return null
         }
@@ -41,7 +41,7 @@ class OACDao(database: OacDatabase) {
                     it.type ?: ""
                 )
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             com.oracle.regicidecommon.base.error("OacDao", "Couldn't get list")
             null
         }

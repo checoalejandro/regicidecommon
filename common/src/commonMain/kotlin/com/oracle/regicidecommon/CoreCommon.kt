@@ -8,9 +8,7 @@ import com.oracle.regicidecommon.base.getPrefsDriver
 import com.oracle.regicidecommon.base.getSqlDriver
 import com.oracle.regicidecommon.login.data.LoginApi
 import com.oracle.regicidecommon.login.repositories.LoginRepository
-import com.oracle.regicidecommon.oac.data.OACApi
-import com.oracle.regicidecommon.oac.data.OACRepository
-import com.oracle.regicidecommon.oac.data.OACDao
+import com.oracle.regicidecommon.oac.data.*
 import com.oracle.regicidecommon.prefs.PrefsDao
 import com.oracle.regicidecommon.prefs.PrefsManager
 import com.squareup.sqldelight.db.SqlDriver
@@ -46,6 +44,8 @@ class CoreCommon(val sleeper: Sleeper, val oacDriver: SqlDriver, val prefsDriver
         // DAOs
         bind() from singleton { OACDao(instance()) }
         bind() from singleton { PrefsDao(instance()) }
+        bind() from singleton { HostDao(instance()) }
+        bind() from singleton { UserDao(instance()) }
 
         // APIs
         bind() from singleton { OACApi(instance("entryUrl"), instance("userAuth")) }
@@ -56,7 +56,7 @@ class CoreCommon(val sleeper: Sleeper, val oacDriver: SqlDriver, val prefsDriver
 
         // Repositories
         bind() from singleton { OACRepository(instance(), instance()) }
-        bind() from singleton { LoginRepository(instance()) }
+        bind() from singleton { LoginRepository(instance(), instance(), instance()) }
     }
 }
 

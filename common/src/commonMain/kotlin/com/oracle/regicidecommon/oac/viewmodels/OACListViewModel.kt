@@ -42,7 +42,9 @@ class OACListViewModel: BaseViewModel<OACCoordinator, DatasetListState>(), Datas
     }
 }
 
-data class DatasetListState(val datasetList: List<DataSet>): State
+data class DatasetListState(val datasetList: List<DataSet>): State {
+    override var s: String = "dataSetList"
+}
 
 interface DatasetListActions: Actions {
     fun fetchDatasetList()

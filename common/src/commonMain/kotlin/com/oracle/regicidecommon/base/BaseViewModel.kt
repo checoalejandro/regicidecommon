@@ -59,7 +59,9 @@ abstract class BaseViewModel<CD: Coordinator, ST: State>: Actions {
                     isInitializing = false
                     return@consumeEach
                 }
-                stateChangeListener?.value?.onStateChange(it)
+                launch(MainDispatcher) {
+                    stateChangeListener?.value?.onStateChange(it)
+                }
             }
         }
     }
@@ -149,7 +151,9 @@ interface Coordinator
  * Each View has an associated [State] that represents every piece of information on the screen,
  * ie. a list of items, a search query.
  */
-interface State
+interface State {
+    var s: String
+}
 
 /**
  * State interface implemented by each View.
@@ -169,12 +173,12 @@ fun CoroutineScope.parsingLaunch(
     start: CoroutineStart = CoroutineStart.DEFAULT,
     block: suspend CoroutineScope.() -> Unit
 ): Job {
-    return launch(heavyDispatcher, start, block)
+    return launch(parsingDispatcher, start, block)
 }
 
 fun CoroutineScope.dbLaunch(
     start: CoroutineStart = CoroutineStart.DEFAULT,
     block: suspend CoroutineScope.() -> Unit
 ): Job {
-    return launch(heavyDispatcher, start, block)
+    return launch(dbDispatcher, start, block)
 }

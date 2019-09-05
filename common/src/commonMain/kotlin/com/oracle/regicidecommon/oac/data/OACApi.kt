@@ -25,11 +25,7 @@ class OACApi(val endPoint: String, val userAuth: String) {
             pipelining = true
         }
         useDefaultTransformers = true
-        install(JsonFeature) {
-            serializer = KotlinxSerializer(Json.nonstrict).apply {
-                setMapper(DataSet::class, DataSet.serializer())
-            }
-        }
+        install(JsonFeature)
     }
 
     suspend fun getDataset(

@@ -48,7 +48,9 @@ class DataSetDetailViewModel(val namespace: String, val name: String) :
 data class DataSetDetailState(
     val dataSet: DataSet?,
     val canonicalData: List<List<String>>?
-) : State
+) : State {
+    override var s: String = "dataSet"
+}
 
 interface DataSetDetailActions : Actions {
     fun fetchCanonicalData(namespace: String, name: String)

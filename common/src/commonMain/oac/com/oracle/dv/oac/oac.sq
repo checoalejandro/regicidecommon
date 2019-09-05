@@ -1,3 +1,5 @@
+-- DataSets
+
 CREATE TABLE datasets (
 name TEXT NOT NULL PRIMARY KEY ON CONFLICT REPLACE,
 namespace TEXT,
@@ -26,3 +28,70 @@ deleteDataset:
 DELETE
 FROM datasets
 WHERE name = :name;
+
+-- Hosts
+
+CREATE TABLE hosts (
+host TEXT NOT NULL PRIMARY KEY ON CONFLICT REPLACE,
+port INTEGER NOT NULL,
+ssl INTEGER AS Boolean DEFAULT 0 NOT NULL
+);
+
+getHosts:
+SELECT *
+FROM hosts;
+
+getHost:
+SELECT *
+FROM hosts
+WHERE host = :host;
+
+insertHost:
+INSERT INTO hosts (host, port, ssl)
+VALUES (?, ?, ?);
+
+clearHosts:
+DELETE
+FROM hosts;
+
+deleteHost:
+DELETE
+FROM hosts
+WHERE host = :host;
+
+-- Users
+
+CREATE TABLE users (
+host TEXT NOT NULL,
+username TEXT NOT NULL,
+password TEXT NOT NULL,
+is_default INTEGER AS Boolean DEFAULT 0 NOT NULL,
+PRIMARY KEY (host, username) ON CONFLICT REPLACE
+);
+
+insertUser:
+INSERT INTO users(host, username, password, is_default)
+VALUES (?, ?, ?, ?);
+
+getUsersFromHost:
+SELECT *
+FROM users
+WHERE host = :host;
+
+resetUsers:
+UPDATE users
+SET is_default = 0;
+
+setDefaultUser:
+UPDATE users
+SET is_default = 1
+WHERE host = :host AND username = :username;
+
+clearUsers:
+SELECT *
+FROM users;
+
+getDefaultUser:
+SELECT *
+FROM users
+WHERE is_default = 1;

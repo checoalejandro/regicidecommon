@@ -52,28 +52,27 @@ class LoginApi(val endPoint: String) {
 
             debug(TAG, "Login response received: $login")
             debug(TAG, "Cookies:\n ${client.cookies(endPoint)}")
-            getSearch()
-            login.isEmpty()
+            login.isEmpty() && getSearch().isNotEmpty()
         } catch (e: Throwable) {
             error(TAG, "Couldn't login: ${e.message}")
             false
         }
     }
 
-    suspend fun getSearch() {
-        return try {
-            debug(TAG, "Requesting empty search...")
-            val result = client.post<String> {
-                url {
-                    takeFrom(endPoint)
-                    encodedPath = OAC_POST_MULTISEARCH
-                }
-                body = TextContent(searchContent, ContentType.Application.Json)
+    suspend fun getSearch() = try {
+        debug(TAG, "Requesting empty search...")
+        val result = client.post<String> {
+            url {
+                takeFrom(endPoint)
+                encodedPath = OAC_POST_MULTISEARCH
             }
-            debug(TAG, "getSearch response:\n$result")
-        } catch (e: Throwable) {
-            error(TAG, "Error getting search: ${e.message}")
+            body = TextContent(searchContent, ContentType.Application.Json)
         }
+        debug(TAG, "getSearch response:\n$result")
+        result
+    } catch (e: Throwable) {
+        error(TAG, "Error getting search: ${e.message}")
+        ""
     }
 }
 
