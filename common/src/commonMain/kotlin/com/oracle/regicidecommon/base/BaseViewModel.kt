@@ -3,8 +3,8 @@ package com.oracle.regicidecommon.base
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.channels.consumeEach
+import kotlinx.serialization.SharedImmutable
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 
 abstract class BaseViewModel<CD: Coordinator, ST: State>: Actions {
     /**
@@ -22,6 +22,7 @@ abstract class BaseViewModel<CD: Coordinator, ST: State>: Actions {
     /**
      * A [WeakRef] value pointing to the [StateChangeListener] being used to display the current [State].
      */
+    @SharedImmutable
     protected var stateChangeListener: WeakRef<StateChangeListener<ST>>? = null
 
     /**
@@ -45,11 +46,12 @@ abstract class BaseViewModel<CD: Coordinator, ST: State>: Actions {
         get() = dbDispatcher + job
 
     private val defaultScope = CoroutineScope(coroutineContext)
-    private val heavyScope = CoroutineScope(coroutineContext)
+    private val heavyScope = CoroutineScope(heavyContext)
     private val parsingScope = CoroutineScope(parsingContext)
     private val dbScope = CoroutineScope(dbContext)
 
     init {
+        debug(TAG, "starting init block")
         launch {
             // Immediately start listening for State changes.
             stateChannel.openSubscription().consumeEach {
@@ -59,7 +61,9 @@ abstract class BaseViewModel<CD: Coordinator, ST: State>: Actions {
                     isInitializing = false
                     return@consumeEach
                 }
+                debug(TAG, "Sending new value to main thread")
                 launch(MainDispatcher) {
+                    debug(TAG, "value received and will be called")
                     stateChangeListener?.value?.onStateChange(it)
                 }
             }

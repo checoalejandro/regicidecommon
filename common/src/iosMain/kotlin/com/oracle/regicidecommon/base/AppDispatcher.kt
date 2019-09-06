@@ -2,7 +2,9 @@ package com.oracle.regicidecommon.base
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Runnable
-import platform.darwin.*
+import platform.darwin.dispatch_async
+import platform.darwin.dispatch_get_main_queue
+import platform.darwin.dispatch_queue_t
 import kotlin.coroutines.CoroutineContext
 
 // Currently, switching to a different thread is broken to due to how multi-threading works on Kotlin Native
@@ -10,7 +12,6 @@ import kotlin.coroutines.CoroutineContext
 //internal actual val IODispatcher: CoroutineDispatcher = NsQueueDispatcher(
 //    dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)
 //)
-
 internal actual val MainDispatcher: CoroutineDispatcher = NsQueueDispatcher(dispatch_get_main_queue())
 internal actual val heavyDispatcher: CoroutineDispatcher = NsQueueDispatcher(dispatch_get_main_queue())
 internal actual val parsingDispatcher: CoroutineDispatcher = NsQueueDispatcher(dispatch_get_main_queue())
