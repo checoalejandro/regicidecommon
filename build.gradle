@@ -44,8 +44,8 @@ allprojects {
             }
         }
         google()
-        jcenter()
         mavenCentral()
+        jcenter()
         maven { url "https://jitpack.io" }
         maven { url "https://kotlin.bintray.com/kotlinx" }
         maven { url "http://slc12jce.us.oracle.com:8081/artifactory/libs-release" }
