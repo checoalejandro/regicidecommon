@@ -29,7 +29,12 @@ class OACListViewModel: BaseViewModel<OACCoordinator, DatasetListState>(), Datas
 
     override fun fetchDatasetList() {
         debug(TAG, "Fetching dataset list")
-        heavyLaunch { oacRepository.fetchDatasets() }
+        heavyLaunch {
+            repeat(1000000) {
+                val result = 1400 * 2000
+            }
+            oacRepository.fetchDatasets()
+        }
     }
 
     override fun onDatasetClicked(namespace: String, name: String) {
